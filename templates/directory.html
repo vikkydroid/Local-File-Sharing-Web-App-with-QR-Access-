@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>📂 File Directory</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <script>
+        function toggleView(view) {
+            document.getElementById('tile-view').style.display = view === 'tile' ? 'grid' : 'none';
+            document.getElementById('table-view').style.display = view === 'table' ? 'table' : 'none';
+            document.getElementById('tile-btn').classList.toggle('active', view === 'tile');
+            document.getElementById('table-btn').classList.toggle('active', view === 'table');
+        }
+        window.onload = () => toggleView('tile');
+    </script>
+</head>
+
+<body class="directory-page">
+    <div class="container">
+        <!-- Decode URL-encoded path -->
+        <h1>📂 {{ path|url_unquote }}</h1>
+
+        {% if parent_link %}
+        <a class="back-link" href="{{ parent_link }}">⬅️ Back to Parent</a>
+        {% endif %}
+
+        <div class="toggle-btns">
+            <button id="tile-btn" onclick="toggleView('tile')">🔳 Tile View</button>
+            <button id="table-btn" onclick="toggleView('table')">📋 Detail View</button>
+        </div>
+
+        <!-- Tile View -->
+        <div id="tile-view" class="card-grid">
+            {% for entry in entries %}
+            <div class="card">
+                {% if entry.type == 'folder' %}
+                <span style="font-size: 1.4em; margin-right: 8px;">📁</span>
+                {% else %}
+                <span style="font-size: 1.4em; margin-right: 8px;">📄</span>
+                {% endif %}
+                <a href="{{ entry.href }}">{{ entry.name }}</a>
+                <div class="card-info">
+                    <div><strong>Type:</strong> {{ entry.type }}</div>
+                    <div><strong>Size:</strong> {{ entry.size }}</div>
+                    {% if entry.type != 'folder' %}
+                    <a href="{{ entry.href }}" download="{{ entry.name }}" class="download-btn"
+                        title="Download {{ entry.name }}">⬇ Download</a>
+                    {% else %}
+                    <button class="download-btn" disabled title="Cannot download a folder">⬇ Download</button>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% endfor %}
+        </div>
+
+        <!-- Table View -->
+        <table id="table-view">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Size</th>
+                    <th>Download</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td><a href="{{ entry.href }}">{{ entry.name }}</a></td>
+                    <td>{{ entry.type }}</td>
+                    <td>{{ entry.size }}</td>
+                    <td>
+                        {% if entry.type != 'folder' %}
+                        <a href="{{ entry.href }}" download="{{ entry.name }}" class="download-btn"
+                            title="Download {{ entry.name }}">⬇ Download</a>
+                        {% else %}
+                        <button class="download-btn" disabled title="Cannot download a folder">⬇ Download</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
